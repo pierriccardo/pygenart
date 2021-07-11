@@ -1,10 +1,10 @@
 from random import random
 import time
-import cairo
 import logging
 import os
 import math
 from time import strftime, gmtime
+import cairo
 
 import numpy as np
 
@@ -21,6 +21,7 @@ class Canvas():
         self.latestfn = os.path.join(savepath, f'latest.{format}')
 
         self.context = self.setup()
+        #self.background(1,2,255,1)
         
 
     def setup(self):
@@ -35,15 +36,10 @@ class Canvas():
             return 0
         
         ctx = cairo.Context(self.surface)
-        ctx.scale(self.w, self.h) 
-
-        ctx.rectangle(0, 0, self.w, self.h)  # Rectangle(x0, y0, x1, y1)
-
-        pat = cairo.LinearGradient(0.0, 0.0, 0.0, 1.0)
-        pat.add_color_stop_rgba(1, 0.7, 0, 0, 0.5)  # First stop, 50% opacity
-        pat.add_color_stop_rgba(0, 0.9, 0.7, 0.2, 1)  # Last stop, 100% opacity
-        ctx.set_source(pat)
-        ctx.fill()       
+        #ctx.scale(self.w, self.h) 
+        ctx.rectangle(0, 0, self.w, self.h) 
+        ctx.set_source_rgba(1,2,255,1)
+        ctx.fill()    
         return ctx
     
     def export(self):
@@ -97,10 +93,13 @@ class Canvas():
         logging.info(f'line to   point x2, y2 is {x2, y2}')
         
     def background(self, r, g, b, a):
+        #self.context.rectangle(0,0,self.h, self.w)
         self.context.set_source_rgba(r, g, b, a)
-        self.context.paint()
+        self.context.fill()
 
     def scale_points(self, x, y):
         return x / self.w, y / self.h
 
         
+
+

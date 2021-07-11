@@ -63,7 +63,6 @@ from pygenart.canvas import Canvas
 from pygenart.turtle import Turtle
 
 c = Canvas(WIDTH, HEIGHT, SEED, format=FORMAT, savepath=SAVEPATH, name=NAME)
-turtle = Turtle(c)
 np.random.seed(SEED)
 #------------------------------
 # SKETCH SELECTION 
@@ -76,7 +75,7 @@ sketch = None
 if args.sketch == 1:
     sketch = RandomWalksSketch(c)
 elif args.sketch == 2:
-    sketch = TurtleTestSketch(c, turtle)
+    sketch = TurtleTestSketch(c)
 else:
     logging.error("main: the sketch selected doesn't exist")
 

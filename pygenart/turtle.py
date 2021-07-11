@@ -1,4 +1,3 @@
-import cairo
 import math
 import numpy as np
 
