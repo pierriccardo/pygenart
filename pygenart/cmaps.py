@@ -28,19 +28,19 @@ class Cmap():
                 colors[k, j] = colors[j, k] = (r, g, b)
 
     def RGG(self): # Reflected Gaussian Gradient
-        colors = np.ndarray(shape=(self.rows, self.cols, 3))
+        colors = np.ndarray(shape=(self.rows, self.cols, 3), dtype=int)
         c = 10
 
         center = (int(self.rows / 2), int(self.cols / 2))
         for x in range(self.rows):
             for y in range(self.cols):
 
-                r = int(((x - center[0]) * 255) / self.rows) + np.random.normal(1) * c
-                g = int(((y - center[1]) * 255) / self.cols) + np.random.normal(1) * c
+                r = int(((x - center[0]) * 255) / self.rows + np.random.normal(1) * c)
+                g = int(((y - center[1]) * 255) / self.cols + np.random.normal(1) * c)
                 b = 200
 
                 self.reflection(x, y, colors, r, g, b)
-        return colors
+        return colors 
 
     def RGG2(self): # Reflected Gaussian Gradient
         colors = np.ndarray(shape=(self.rows, self.cols, 3))
@@ -50,8 +50,8 @@ class Cmap():
         for x in range(self.rows):
             for y in range(self.cols):
 
-                g = int(((x - center[0]) * 255) / self.rows) + np.random.normal(1) * c
-                r = int(((y - center[1]) * 255) / self.cols) + np.random.normal(1) * c
+                g = int(((x - center[0]) * 255) / self.rows + np.random.normal(1) * c)
+                r = int(((y - center[1]) * 255) / self.cols + np.random.normal(1) * c)
                 b = 200
 
                 self.reflection(x, y, colors, r, g, b)
@@ -68,9 +68,9 @@ class Cmap():
             for y in range(self.cols):
                 dist = distance(c_x, c_y, x, y)
 
-                g = dist*x + dist*np.random.normal(1)
-                r = dist*y + dist*np.random.normal(1)
-                b = np.random.normal(1)*x + np.random.normal(1)*y
+                g = int(dist*x + dist*np.random.normal(1))
+                r = int(dist*y + dist*np.random.normal(1))
+                b = int(np.random.normal(1)*x + np.random.normal(1)*y)
 
                 self.reflection(x, y, colors, r, g, b)
         return colors

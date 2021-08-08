@@ -33,12 +33,10 @@ if not os.path.exists(PATH):
   os.makedirs(PATH)
   
 
-print()
-
 # ------------------------------
 # Experiment
 # ------------------------------
-from pygenart.grids import PixelGrid, HexagonalGrid
+from pygenart.grids import PixelGrid
 from pygenart.cmaps import Cmap
 
 def exp(seed):
@@ -48,8 +46,7 @@ def exp(seed):
     cmap = cmaps.getmap(args.cmap)    
     noise_value = int(0.023 * N + 4.29) if args.noise_value is None else args.noise_value
 
-    #img = PixelGrid(size, unit, noise=args.noise, noise_value=noise_value)
-    img = HexagonalGrid(size, unit, noise=args.noise, noise_value=noise_value)
+    img = PixelGrid(size, unit, noise=args.noise, noise_value=noise_value)
     img.apply(cmap)
 
     img.save(f'{PATH}/{seed}_{args.cmap}.png')

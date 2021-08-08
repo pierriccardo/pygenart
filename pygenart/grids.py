@@ -1,7 +1,8 @@
-from PIL import Image
+from PIL import Image, ImageDraw
 import numpy as np
 from abc import abstractmethod
-from pygenart.utils import distance
+from pygenart.utils import *
+#from aggdraw import Draw, Pen, Brush
 
 class Grid():
     def __init__(self, size, unit, dpi=100, noise='none', noise_value=100):
@@ -10,6 +11,8 @@ class Grid():
         self.rows = int(self.w / unit)
         self.cols = int(self.h / unit)
         self.img = Image.new('RGB', size)
+        self.draw = ImageDraw.Draw(self.img)
+
         self.unit = unit
         self.noise = noise
         self.noise_value = noise_value
@@ -20,31 +23,15 @@ class Grid():
     def apply(self):
         pass 
 
-    def noise_gaussian(self, r, g, b):
-        r += np.random.normal(1)*self.noise_value
-        g += np.random.normal(1)*self.noise_value
-        b += np.random.normal(1)*self.noise_value
-        return r, g, b
+    def noise_gaussian(self, color):
+        return tuple([int(np.random.normal(1)*self.noise_value + c) for c in color])
     
-    def noise_cellular(self, r, g, b, x, y):
-        points = [(int(np.random.random() * self.unit), 
-                    int(np.random.random() * self.unit)) 
-                    for _ in range(self.noise_value)]
-
-        min_dist_arr = []
-        for p in points:
-            min_dist_arr.append(distance(p[0], p[1], x, y))
-    
-        dist = np.min(min_dist_arr) 
-        
-        return r+dist*5, g+dist*5, b+dist*5
-
     def save(self, path):
         self.img.save(path)
 
 
 
-class PixelGrid():
+class PixelGrid(Grid):
 
     def __init__(self, size, unit, dpi=100, noise='none', noise_value=100):
         self.size = size
@@ -66,24 +53,12 @@ class PixelGrid():
 
                 for x in range(unit_row, unit_row+self.unit):
                     for y in range(unit_col, unit_col+self.unit):
-
                         r, g, b = cmap[row, col]
 
                         if self.noise == 'gaussian':
-                            r, g, b, = self.noise_gaussian(r, g, b)
-
+                            r, g, b, = self.noise_gaussian(cmap[row, col])
 
                         self.pixels[x, y] = int(r), int(g), int(b)
-    
-
-    def noise_gaussian(self, r, g, b):
-        r += np.random.normal(1)*self.noise_value
-        g += np.random.normal(1)*self.noise_value
-        b += np.random.normal(1)*self.noise_value
-        return r, g, b
-
-    def save(self, path):
-        self.img.save(path)
 
 class HexagonalGrid(Grid):
 
@@ -92,40 +67,32 @@ class HexagonalGrid(Grid):
 
     def apply(self, cmap):
         
+        hex_gen = HexagonGenerator(self.unit)
         for row in range(self.rows):
             for col in range(self.cols):
+                hexagon = hex_gen(row, col)
 
-                # (row, col) is the center of the hexagon
-                unit_row, unit_col = row*self.unit, col*self.unit
-                cx = unit_row
-                cy = unit_col
-                size = self.unit
-                w = int(size * np.sqrt(3))
-                h = size * 2
-                for x in range(max(0, cx-int(w/2)), min(cx+int(w/2), self.size[0])):
-                    for y in range(int(0.5 - np.abs(x)/size)):
+                self.draw.polygon(list(hexagon), fill=tuple(cmap[row, col]))
+        
 
-                        print(x)
-                        print(y)
-                        r, g, b = cmap[row, col]
+class HexagonGenerator(object):
+    """Returns a hexagon generator for hexagons of the specified size."""
+    def __init__(self, edge_length):
+        self.edge_length = edge_length
 
+    @property
+    def col_width(self):
+        return self.edge_length * 3
 
-                        self.pixels[x, y] = int(r), int(g), int(b)
-                
-                
-                '''
+    @property
+    def row_height(self):
+        return np.sin(np.pi / 3) * self.edge_length
 
-                for x in range(unit_row, unit_row+self.unit):
-                    for y in range(unit_col, unit_col+self.unit):
-
-                        r, g, b = cmap[row, col]
-
-                        if self.noise == 'gaussian':
-                            r, g, b, = self.noise_gaussian(r, g, b)
-
-
-                        self.pixels[x, y] = int(r), int(g), int(b)
-                '''
-
-        return super().apply()
-    
+    def __call__(self, row, col):
+        x = (col + 0.5 * (row % 2)) * self.col_width
+        y = row * self.row_height
+        for angle in range(0, 360, 60):
+            x += np.cos(np.radians(angle)) * self.edge_length
+            y += np.sin(np.radians(angle)) * self.edge_length
+            yield x
+            yield y

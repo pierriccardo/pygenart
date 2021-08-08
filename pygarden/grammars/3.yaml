@@ -1,0 +1,8 @@
+---
+SEGMENT: 10
+ITERATIONS: 5
+ANGLE: 20
+AXIOM: "F"
+RULES:
+- "0 -> F[+0]-0"
+- "F -> FF"
